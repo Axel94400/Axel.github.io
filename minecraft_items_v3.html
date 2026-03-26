@@ -1,0 +1,723 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans,sans-serif);color:var(--color-text-primary);background:transparent;font-size:14px}
+
+.app{display:flex;flex-direction:column;min-height:700px}
+.tabs{display:flex;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);padding:0 6px}
+.tab{padding:11px 16px;cursor:pointer;font-size:13px;color:var(--color-text-secondary);border-bottom:2px solid transparent;transition:all 0.15s;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.tab:hover{color:var(--color-text-primary)}
+.tab.active{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary);font-weight:500}
+.cpill{background:var(--color-background-tertiary);border-radius:99px;padding:1px 8px;font-size:11px;color:var(--color-text-secondary)}
+
+.panel{display:none;padding:18px}
+.panel.active{display:block}
+
+.sc{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:15px 17px;margin-bottom:12px}
+.sc-title{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:11px;display:flex;align-items:center;gap:7px}
+.rdot{width:5px;height:5px;border-radius:50%;background:#E24B4A;flex-shrink:0}
+.otag{font-size:10px;background:var(--color-background-secondary);border-radius:4px;padding:1px 6px;color:var(--color-text-tertiary);font-weight:400;text-transform:none;letter-spacing:0}
+
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fg.t3{grid-template-columns:1fr 1fr 1fr}
+.full{grid-column:1/-1}
+.fl{font-size:12px;color:var(--color-text-secondary);font-weight:500;margin-bottom:4px;display:flex;align-items:center;gap:5px}
+.rs{color:#E24B4A;font-size:11px}
+.ot{font-size:10px;color:var(--color-text-tertiary);font-weight:400}
+input,select,textarea{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:8px 10px;font-size:13px;color:var(--color-text-primary);font-family:inherit;width:100%;transition:border-color 0.15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--color-border-primary)}
+input.err,select.err{border-color:#E24B4A}
+input:disabled,select:disabled{opacity:0.4;cursor:not-allowed;background:var(--color-background-secondary)}
+textarea{resize:vertical;min-height:60px}
+.ferr{font-size:11px;color:#A32D2D;margin-top:3px;display:none}
+.ferr.show{display:block}
+.fhint{font-size:11px;color:var(--color-text-tertiary);margin-top:3px}
+
+.rbtn-row{display:flex;gap:6px;flex-wrap:wrap}
+.rbtn{padding:6px 13px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);cursor:pointer;font-size:12px;font-weight:500;background:var(--color-background-primary);color:var(--color-text-secondary);transition:all 0.15s}
+.rbtn[data-r="commun"].active{background:#D3D1C7;color:#2C2C2A;border-color:#B4B2A9}
+.rbtn[data-r="peu commun"].active{background:#9FE1CB;color:#085041;border-color:#5DCAA5}
+.rbtn[data-r="rare"].active{background:#B5D4F4;color:#0C447C;border-color:#85B7EB}
+.rbtn[data-r="épique"].active{background:#CECBF6;color:#3C3489;border-color:#AFA9EC}
+.rbtn[data-r="légendaire"].active{background:#FAC775;color:#633806;border-color:#EF9F27}
+
+.cbtn-row{display:flex;gap:6px;flex-wrap:wrap}
+.cbtn{padding:6px 13px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);cursor:pointer;font-size:12px;background:var(--color-background-primary);color:var(--color-text-secondary);transition:all 0.15s}
+.cbtn:hover:not(.locked){border-color:var(--color-border-primary);color:var(--color-text-primary)}
+.cbtn.active{background:var(--color-background-secondary);border-color:var(--color-border-primary);color:var(--color-text-primary);font-weight:500}
+.cbtn.locked{opacity:0.35;cursor:not-allowed}
+.cna{font-size:11px;color:var(--color-text-tertiary);margin-top:6px;display:none;font-style:italic}
+
+.stat-row{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.stat-row input[type=text]{flex:1;font-size:12px}
+.stat-row input[type=number]{width:82px;font-size:12px}
+.rmb{background:none;border:none;cursor:pointer;color:var(--color-text-secondary);padding:4px 8px;border-radius:var(--border-radius-md);font-size:16px;line-height:1;transition:background 0.12s}
+.rmb:hover{background:#FCEBEB;color:#A32D2D}
+
+.addb{padding:6px 12px;border:0.5px dashed var(--color-border-secondary);border-radius:var(--border-radius-md);background:none;cursor:pointer;font-size:12px;color:var(--color-text-secondary);transition:all 0.15s;margin-top:2px}
+.addb:hover{background:var(--color-background-secondary);border-color:var(--color-border-primary);color:var(--color-text-primary)}
+
+.setblk{background:var(--color-background-secondary);border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);padding:12px;margin-bottom:8px}
+.seth{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.seth input{flex:1;font-size:13px}
+.stier{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.stier input[type=number]{width:54px;font-size:12px}
+.stier input[type=text]{flex:1;font-size:12px}
+.tlbl{font-size:11px;color:var(--color-text-secondary);white-space:nowrap}
+
+.set-suggest{background:var(--color-background-info,#E6F1FB);border-radius:var(--border-radius-md);padding:8px 10px;margin-bottom:8px;font-size:12px}
+.set-suggest-title{font-size:11px;font-weight:500;color:#185FA5;margin-bottom:6px}
+.set-chips{display:flex;flex-wrap:wrap;gap:5px}
+.set-chip{padding:4px 10px;background:#B5D4F4;color:#0C447C;border-radius:99px;font-size:11px;font-weight:500;cursor:pointer;transition:background 0.12s}
+.set-chip:hover{background:#85B7EB}
+
+.btnrow{display:flex;gap:8px;align-items:center;margin-top:18px;flex-wrap:wrap}
+.savbtn{padding:9px 22px;background:var(--color-text-primary);color:var(--color-background-primary);border:none;border-radius:var(--border-radius-md);cursor:pointer;font-size:13px;font-weight:500;transition:opacity 0.15s}
+.savbtn:hover{opacity:0.82}
+.canbtn{padding:8px 16px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:none;cursor:pointer;font-size:13px;color:var(--color-text-secondary);display:none}
+.canbtn:hover{color:var(--color-text-primary)}
+.toolbtn{padding:7px 13px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);cursor:pointer;font-size:12px;color:var(--color-text-secondary)}
+.toolbtn:hover{color:var(--color-text-primary);border-color:var(--color-border-primary)}
+
+.toast{position:absolute;top:10px;right:10px;background:var(--color-text-primary);color:var(--color-background-primary);padding:7px 13px;border-radius:var(--border-radius-md);font-size:12px;opacity:0;transition:opacity 0.2s;pointer-events:none;z-index:100}
+.toast.show{opacity:1}
+
+.wiki-top{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.wiki-top input{flex:1;min-width:130px}
+.wiki-top select{width:120px}
+.view-toggle{display:flex;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);overflow:hidden;flex-shrink:0}
+.vbtn{padding:6px 12px;border:none;background:var(--color-background-secondary);cursor:pointer;font-size:12px;color:var(--color-text-secondary);transition:all 0.12s}
+.vbtn.active{background:var(--color-text-primary);color:var(--color-background-primary)}
+
+.items-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.icard{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:13px;cursor:pointer;transition:border-color 0.15s}
+.icard:hover{border-color:var(--color-border-secondary)}
+.icard.sel{border:1.5px solid var(--color-text-primary)}
+.ictop{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;gap:6px}
+.icname{font-weight:500;font-size:13px;line-height:1.3}
+.icmeta{font-size:11px;color:var(--color-text-secondary);margin-bottom:7px}
+.schip{display:inline-block;padding:2px 7px;border-radius:4px;background:var(--color-background-secondary);margin:1px 2px 1px 0;font-size:11px}
+
+.items-table{width:100%;border-collapse:collapse;font-size:13px}
+.items-table th{text-align:left;padding:8px 10px;font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.04em;border-bottom:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary)}
+.items-table td{padding:9px 10px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:middle}
+.items-table tr{cursor:pointer;transition:background 0.1s}
+.items-table tr:hover td{background:var(--color-background-secondary)}
+.items-table tr.sel td{background:var(--color-background-secondary)}
+.tname{font-weight:500}
+.tact{display:flex;gap:5px}
+.teditbtn,.tdelbtn{padding:3px 9px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:none;cursor:pointer;font-size:11px;color:var(--color-text-secondary)}
+.teditbtn:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+.tdelbtn:hover{background:#FCEBEB;color:#A32D2D;border-color:#F09595}
+
+.rbadge{font-size:10px;font-weight:500;padding:2px 8px;border-radius:99px;white-space:nowrap;flex-shrink:0}
+.r-commun{background:#D3D1C7;color:#444441}
+.r-peu-commun{background:#9FE1CB;color:#085041}
+.r-rare{background:#B5D4F4;color:#0C447C}
+.r-épique{background:#CECBF6;color:#3C3489}
+.r-légendaire{background:#FAC775;color:#633806}
+
+.detail-panel{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:18px;margin-top:14px}
+.dtop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
+.dname{font-size:17px;font-weight:500}
+.dmeta{font-size:12px;color:var(--color-text-secondary);margin-top:3px}
+.dacts{display:flex;gap:6px;flex-shrink:0;align-items:flex-start;flex-direction:column}
+.deditbtn,.ddelbtn{padding:5px 12px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:none;cursor:pointer;font-size:12px;color:var(--color-text-secondary);width:100%}
+.deditbtn:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+.ddelbtn:hover{background:#FCEBEB;color:#A32D2D;border-color:#F09595}
+.stattags{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.stattag{padding:4px 11px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);font-size:12px}
+.sval{font-weight:500}
+.setinfo{margin-top:12px}
+.setititle{font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px}
+.stierrow{display:flex;gap:8px;align-items:center;margin:4px 0;font-size:12px}
+.scntbadge{background:#E6F1FB;color:#0C447C;border-radius:4px;padding:2px 8px;font-weight:500;white-space:nowrap;font-size:11px}
+
+.tc-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.tc-group{margin-bottom:14px}
+.tc-group-title{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:7px;padding-bottom:5px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.tc-slot{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px 12px;display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.tc-slabel{font-size:12px;color:var(--color-text-secondary);min-width:90px;flex-shrink:0}
+.tc-slot select{flex:1;font-size:12px;padding:5px 8px}
+.tc-sum{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:16px}
+.tc-sumtitle{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px}
+.tc-sr{display:flex;justify-content:space-between;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px}
+.tc-sv{font-weight:500}
+.setact{background:#EAF3DE;border-radius:var(--border-radius-md);padding:9px 11px;margin-top:8px;font-size:12px}
+.setact-name{font-weight:500;color:#27500A;margin-bottom:5px}
+.setact-b{color:#3B6D11;display:flex;gap:6px;align-items:baseline;margin:2px 0;font-size:12px}
+.setact-b::before{content:"✓";font-size:10px}
+.empty{text-align:center;color:var(--color-text-secondary);padding:36px;font-size:13px}
+
+.section-divider{border:none;border-top:0.5px solid var(--color-border-tertiary);margin:4px 0 10px}
+</style>
+
+<div class="app" style="position:relative">
+<div class="toast" id="toast"></div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('form')">Ajouter un item</div>
+  <div class="tab" onclick="showTab('wiki')">Wiki <span class="cpill" id="wcnt">0</span></div>
+  <div class="tab" onclick="showTab('tc')">Théorycrafter</div>
+</div>
+
+<div class="panel active" id="tab-form">
+
+  <div class="sc">
+    <div class="sc-title"><span class="rdot"></span>Informations principales</div>
+    <div class="fg">
+      <div>
+        <div class="fl">Nom de l'item <span class="rs">*</span></div>
+        <input type="text" id="f-name" placeholder="ex : Jambières du Nécromancien">
+        <div class="ferr" id="e-name">Le nom est obligatoire.</div>
+      </div>
+      <div>
+        <div class="fl">Palier <span class="rs">*</span></div>
+        <select id="f-palier">
+          <option value="">— Choisir —</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+        </select>
+        <div class="ferr" id="e-palier">Le palier est obligatoire.</div>
+      </div>
+      <div>
+        <div class="fl">Catégorie / Slot <span class="rs">*</span></div>
+        <select id="f-cat" onchange="onCatChange()">
+          <option value="">— Choisir —</option>
+          <optgroup label="Armures">
+            <option value="Casque|armor">Casque</option>
+            <option value="Masque|armor">Masque (remplace casque)</option>
+            <option value="Plastron|armor">Plastron</option>
+            <option value="Jambières|armor">Jambières</option>
+            <option value="Bottes|armor">Bottes</option>
+          </optgroup>
+          <optgroup label="Armes">
+            <option value="Épée|weapon">Épée</option>
+            <option value="Hache|weapon">Hache</option>
+            <option value="Faux|weapon">Faux</option>
+            <option value="Dague|weapon">Dague</option>
+            <option value="Bâton de shaman|weapon">Bâton de shaman</option>
+            <option value="Bâton de mage|weapon">Bâton de mage</option>
+            <option value="Arc|weapon">Arc</option>
+            <option value="Arbalète|weapon">Arbalète</option>
+          </optgroup>
+          <optgroup label="Seconde main">
+            <option value="Bouclier|offhand">Bouclier</option>
+            <option value="Catalyseur|offhand">Catalyseur (shaman/mage)</option>
+          </optgroup>
+          <optgroup label="Accessoires">
+            <option value="Gants|acc">Gants</option>
+            <option value="Artefact|acc">Artefact</option>
+            <option value="Amulette|acc">Amulette</option>
+            <option value="Bracelet|acc">Bracelet</option>
+            <option value="Anneau|acc">Anneau</option>
+          </optgroup>
+        </select>
+        <div class="ferr" id="e-cat">La catégorie est obligatoire.</div>
+      </div>
+      <div>
+        <div class="fl">Niveau minimum <span class="ot">optionnel</span></div>
+        <input type="number" id="f-level" placeholder="13" min="1">
+      </div>
+    </div>
+  </div>
+
+  <div class="sc">
+    <div class="sc-title"><span class="rdot"></span>Classe requise</div>
+    <div class="cbtn-row" id="cbtn-row">
+      <div class="cbtn" data-c="guerrier" onclick="toggleClass(this)">Guerrier</div>
+      <div class="cbtn" data-c="assassin" onclick="toggleClass(this)">Assassin</div>
+      <div class="cbtn" data-c="shaman" onclick="toggleClass(this)">Shaman</div>
+      <div class="cbtn" data-c="mage" onclick="toggleClass(this)">Mage</div>
+      <div class="cbtn" data-c="archer" onclick="toggleClass(this)">Archer</div>
+    </div>
+    <div class="cna" id="cna">Accessoire — équipable par toutes les classes.</div>
+    <div class="ferr" id="e-class">Sélectionnez une classe pour cet item.</div>
+  </div>
+
+  <div class="sc">
+    <div class="sc-title"><span class="rdot"></span>Rareté</div>
+    <div class="rbtn-row">
+      <div class="rbtn" data-r="commun" onclick="setRar(this)">Commun</div>
+      <div class="rbtn" data-r="peu commun" onclick="setRar(this)">Peu commun</div>
+      <div class="rbtn" data-r="rare" onclick="setRar(this)">Rare</div>
+      <div class="rbtn" data-r="épique" onclick="setRar(this)">Épique</div>
+      <div class="rbtn" data-r="légendaire" onclick="setRar(this)">Légendaire</div>
+    </div>
+    <div class="ferr" id="e-rar">Choisissez une rareté.</div>
+  </div>
+
+  <div class="sc">
+    <div class="sc-title"><span class="rdot"></span>Stats</div>
+    <div id="stats-cont"></div>
+    <button class="addb" onclick="addStat()">+ Ajouter une stat</button>
+    <div class="ferr" id="e-stats">Ajoutez au moins une stat.</div>
+  </div>
+
+  <div class="sc">
+    <div class="sc-title">Bonus de set <span class="otag">optionnel</span></div>
+    <div id="set-suggest-wrap"></div>
+    <div id="set-cont"></div>
+    <button class="addb" onclick="addSet()">+ Nouveau bonus de set</button>
+  </div>
+
+  <div class="sc">
+    <div class="sc-title">Description lore <span class="otag">optionnel</span></div>
+    <textarea id="f-desc" rows="2" placeholder="Texte de description..."></textarea>
+  </div>
+
+  <div class="btnrow">
+    <button class="savbtn" id="savbtn" onclick="saveItem()">Sauvegarder l'item</button>
+    <button class="canbtn" id="canbtn" onclick="cancelEdit()">Annuler</button>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="toolbtn" onclick="exportJSON()">Exporter JSON</button>
+      <button class="toolbtn" onclick="importJSON()">Importer JSON</button>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="tab-wiki">
+  <div class="wiki-top">
+    <input type="text" id="search" placeholder="Rechercher..." oninput="renderWiki()">
+    <select id="flt-cl" onchange="renderWiki()">
+      <option value="">Toutes classes</option>
+      <option>guerrier</option><option>assassin</option><option>shaman</option><option>mage</option><option>archer</option>
+    </select>
+    <select id="flt-cat" onchange="renderWiki()">
+      <option value="">Toutes catégories</option>
+      <option>Casque</option><option>Masque</option><option>Plastron</option><option>Jambières</option><option>Bottes</option>
+      <option>Épée</option><option>Hache</option><option>Faux</option><option>Dague</option><option>Bâton de shaman</option><option>Bâton de mage</option><option>Arc</option><option>Arbalète</option>
+      <option>Bouclier</option><option>Catalyseur</option>
+      <option>Gants</option><option>Artefact</option><option>Amulette</option><option>Bracelet</option><option>Anneau</option>
+    </select>
+    <select id="flt-rar" onchange="renderWiki()">
+      <option value="">Toutes raretés</option>
+      <option>commun</option><option>peu commun</option><option>rare</option><option>épique</option><option>légendaire</option>
+    </select>
+    <div class="view-toggle">
+      <button class="vbtn active" id="vbtn-grid" onclick="setView('grid')">Grille</button>
+      <button class="vbtn" id="vbtn-table" onclick="setView('table')">Tableau</button>
+    </div>
+  </div>
+  <div id="items-view"></div>
+  <div id="detail-panel"></div>
+</div>
+
+<div class="panel" id="tab-tc">
+  <div class="tc-wrap">
+    <div>
+      <div class="tc-group">
+        <div class="tc-group-title">Armures</div>
+        <div class="tc-slot"><div class="tc-slabel">Casque / Masque</div><select id="tc-casque" onchange="calcTC()"><option value="">—</option></select></div>
+        <div class="tc-slot"><div class="tc-slabel">Plastron</div><select id="tc-plastron" onchange="calcTC()"><option value="">—</option></select></div>
+        <div class="tc-slot"><div class="tc-slabel">Jambières</div><select id="tc-jambieres" onchange="calcTC()"><option value="">—</option></select></div>
+        <div class="tc-slot"><div class="tc-slabel">Bottes</div><select id="tc-bottes" onchange="calcTC()"><option value="">—</option></select></div>
+      </div>
+      <div class="tc-group">
+        <div class="tc-group-title">Armes & seconde main</div>
+        <div class="tc-slot"><div class="tc-slabel">Arme principale</div><select id="tc-arme" onchange="calcTC()"><option value="">—</option></select></div>
+        <div class="tc-slot"><div class="tc-slabel">Seconde main</div><select id="tc-offhand" onchange="calcTC()"><option value="">—</option></select></div>
+      </div>
+      <div class="tc-group">
+        <div class="tc-group-title">Accessoires</div>
+        <div class="tc-slot"><div class="tc-slabel">Gants</div><select id="tc-gants" onchange="calcTC()"><option value="">—</option></select></div>
+        <div class="tc-slot"><div class="tc-slabel">Artefact 1</div><select id="tc-art1" onchange="calcTC()"><option value="">—</option></select></div>
+        <div class="tc-slot"><div class="tc-slabel">Artefact 2</div><select id="tc-art2" onchange="calcTC()"><option value="">—</option></select></div>
+        <div class="tc-slot"><div class="tc-slabel">Artefact 3</div><select id="tc-art3" onchange="calcTC()"><option value="">—</option></select></div>
+        <div class="tc-slot"><div class="tc-slabel">Amulette</div><select id="tc-amulette" onchange="calcTC()"><option value="">—</option></select></div>
+        <div class="tc-slot"><div class="tc-slabel">Bracelet</div><select id="tc-bracelet" onchange="calcTC()"><option value="">—</option></select></div>
+        <div class="tc-slot"><div class="tc-slabel">Anneau 1</div><select id="tc-anneau1" onchange="calcTC()"><option value="">—</option></select></div>
+        <div class="tc-slot"><div class="tc-slabel">Anneau 2</div><select id="tc-anneau2" onchange="calcTC()"><option value="">—</option></select></div>
+      </div>
+    </div>
+    <div class="tc-sum">
+      <div class="tc-sumtitle">Stats cumulées</div>
+      <div id="tc-stats"></div>
+      <div id="tc-sets"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<datalist id="dn-list"></datalist>
+
+<script>
+const ACC_CATS=['Gants','Artefact','Amulette','Bracelet','Anneau'];
+const ARMOR_WEAPON=['Casque','Masque','Plastron','Jambières','Bottes','Épée','Hache','Faux','Dague','Bâton de shaman','Bâton de mage','Arc','Arbalète','Bouclier','Catalyseur'];
+const CLASSES=['guerrier','assassin','shaman','mage','archer'];
+
+let items=JSON.parse(localStorage.getItem('mc3_items')||'[]');
+let selRar='',selClass='',editId=null,selItemId=null,viewMode='grid';
+
+function save(){localStorage.setItem('mc3_items',JSON.stringify(items));}
+function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2200);}
+
+function showTab(t){
+  ['form','wiki','tc'].forEach((n,i)=>{
+    document.querySelectorAll('.tab')[i].classList.toggle('active',n===t);
+    document.getElementById('tab-'+n).classList.toggle('active',n===t);
+  });
+  if(t==='wiki')renderWiki();
+  if(t==='tc')fillTC();
+}
+
+function getCatName(v){return v?v.split('|')[0]:'';}
+function getCatType(v){return v?v.split('|')[1]:'';}
+
+function onCatChange(){
+  const v=document.getElementById('f-cat').value;
+  const type=getCatType(v);
+  const isAcc=type==='acc';
+  document.querySelectorAll('.cbtn').forEach(b=>{
+    b.classList.toggle('locked',isAcc);
+    if(isAcc)b.classList.remove('active');
+  });
+  document.getElementById('cna').style.display=isAcc?'block':'none';
+  if(isAcc)selClass='';
+  clearE('e-cat');
+}
+
+function setRar(btn){
+  document.querySelectorAll('.rbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');selRar=btn.dataset.r;clearE('e-rar');
+}
+
+function toggleClass(btn){
+  if(btn.classList.contains('locked'))return;
+  document.querySelectorAll('.cbtn').forEach(b=>b.classList.remove('active'));
+  selClass=selClass===btn.dataset.c?'':btn.dataset.c;
+  if(selClass)btn.classList.add('active');
+  clearE('e-class');
+}
+
+function addStat(name='',val=''){
+  const c=document.getElementById('stats-cont');
+  const d=document.createElement('div');d.className='stat-row';
+  d.innerHTML=`<input type="text" placeholder="Défense, Santé, Attaque..." value="${name}" list="dn-list" style="flex:1;font-size:12px">
+    <input type="number" placeholder="+0.00" value="${val}" step="0.01" style="width:82px;font-size:12px">
+    <button class="rmb" onclick="this.parentElement.remove()">×</button>`;
+  c.appendChild(d);clearE('e-stats');
+}
+
+function getKnownSets(){
+  const sets={};
+  items.forEach(it=>{
+    (it.sets||[]).forEach(s=>{if(s.name&&!sets[s.name])sets[s.name]=s;});
+  });
+  return sets;
+}
+
+function renderSetSuggest(){
+  const known=getKnownSets();
+  const names=Object.keys(known);
+  const w=document.getElementById('set-suggest-wrap');
+  if(!names.length){w.innerHTML='';return;}
+  w.innerHTML=`<div class="set-suggest">
+    <div class="set-suggest-title">Sets existants — cliquer pour ajouter :</div>
+    <div class="set-chips">${names.map(n=>`<div class="set-chip" onclick="addExistingSet('${n.replace(/'/g,"\\'")}')">+ ${n}</div>`).join('')}</div>
+  </div>`;
+}
+
+function addExistingSet(name){
+  const known=getKnownSets();
+  const s=known[name];
+  if(s)addSet(s.name,s.tiers);
+}
+
+function addSet(name='',tiers=[]){
+  const c=document.getElementById('set-cont');
+  const id='s'+Date.now()+'_'+Math.random().toString(36).slice(2);
+  const d=document.createElement('div');d.className='setblk';d.id=id;
+  d.innerHTML=`<div class="seth">
+    <input type="text" placeholder="Nom du set" value="${name}" style="flex:1">
+    <button class="rmb" style="font-size:13px;padding:4px 10px" onclick="document.getElementById('${id}').remove()">× Supprimer</button>
+  </div>
+  <div class="st-${id}"></div>
+  <button class="addb" style="margin-top:2px" onclick="addTier('${id}')">+ Palier</button>`;
+  c.appendChild(d);
+  tiers.forEach(t=>addTier(id,t.count,t.bonus));
+  if(!tiers.length)addTier(id);
+}
+
+function addTier(sid,count='',bonus=''){
+  const c=document.querySelector('.st-'+sid);if(!c)return;
+  const d=document.createElement('div');d.className='stier';
+  d.innerHTML=`<span class="tlbl">Pièces :</span>
+    <input type="number" min="1" max="10" value="${count}" placeholder="2" style="width:54px;font-size:12px">
+    <input type="text" placeholder="ex : +6 stamina max" value="${bonus}" style="flex:1;font-size:12px">
+    <button class="rmb" onclick="this.parentElement.remove()">×</button>`;
+  c.appendChild(d);
+}
+
+function clearE(id){const e=document.getElementById(id);if(e)e.classList.remove('show');}
+function showE(id){const e=document.getElementById(id);if(e)e.classList.add('show');}
+function markErr(id,b){const e=document.getElementById(id);if(e){if(b)e.classList.add('err');else e.classList.remove('err');}}
+
+function validate(){
+  let ok=true;
+  const name=document.getElementById('f-name').value.trim();
+  const cat=document.getElementById('f-cat').value;
+  const pal=document.getElementById('f-palier').value;
+  const type=getCatType(cat);
+  const stats=[...document.querySelectorAll('#stats-cont .stat-row')].filter(r=>r.querySelectorAll('input')[0].value.trim());
+  if(!name){showE('e-name');markErr('f-name',true);ok=false;}else{clearE('e-name');markErr('f-name',false);}
+  if(!cat){showE('e-cat');markErr('f-cat',true);ok=false;}else{clearE('e-cat');markErr('f-cat',false);}
+  if(!pal){showE('e-palier');markErr('f-palier',true);ok=false;}else{clearE('e-palier');markErr('f-palier',false);}
+  if(!selRar){showE('e-rar');ok=false;}else clearE('e-rar');
+  if(type!=='acc'&&!selClass){showE('e-class');ok=false;}else clearE('e-class');
+  if(!stats.length){showE('e-stats');ok=false;}else clearE('e-stats');
+  return ok;
+}
+
+function getFormData(){
+  const stats=[];
+  document.querySelectorAll('#stats-cont .stat-row').forEach(r=>{
+    const ins=r.querySelectorAll('input');
+    if(ins[0].value.trim())stats.push({name:ins[0].value.trim(),value:parseFloat(ins[1].value)||0});
+  });
+  const sets=[];
+  document.querySelectorAll('#set-cont .setblk').forEach(sb=>{
+    const name=sb.querySelector('input[type=text]').value.trim();
+    const tiers=[];
+    sb.querySelectorAll('.stier').forEach(t=>{
+      const ins=t.querySelectorAll('input');
+      if(ins[1].value.trim())tiers.push({count:parseInt(ins[0].value)||2,bonus:ins[1].value.trim()});
+    });
+    if(name)sets.push({name,tiers});
+  });
+  const catVal=document.getElementById('f-cat').value;
+  const catName=getCatName(catVal);
+  const catType=getCatType(catVal);
+  return{
+    id:editId||Date.now(),
+    name:document.getElementById('f-name').value.trim(),
+    class:catType==='acc'?'':selClass,
+    category:catName,catType,
+    palier:parseInt(document.getElementById('f-palier').value)||null,
+    level:parseInt(document.getElementById('f-level').value)||null,
+    rarity:selRar,
+    description:document.getElementById('f-desc').value.trim(),
+    stats,sets
+  };
+}
+
+function saveItem(){
+  if(!validate())return;
+  const item=getFormData();
+  if(editId){const i=items.findIndex(x=>x.id===editId);if(i!==-1)items[i]=item;}
+  else items.push(item);
+  save();resetForm();
+  document.getElementById('wcnt').textContent=items.length;
+  toast(editId?'Item mis à jour !':'Item sauvegardé !');
+}
+
+function resetForm(){
+  ['f-name','f-level','f-desc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-cat').value='';
+  document.getElementById('f-palier').value='';
+  document.querySelectorAll('.rbtn,.cbtn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.cbtn').forEach(b=>b.classList.remove('locked'));
+  document.getElementById('cna').style.display='none';
+  document.getElementById('stats-cont').innerHTML='';
+  document.getElementById('set-cont').innerHTML='';
+  document.getElementById('set-suggest-wrap').innerHTML='';
+  ['e-name','e-cat','e-palier','e-rar','e-class','e-stats'].forEach(clearE);
+  ['f-name','f-cat','f-palier'].forEach(id=>markErr(id,false));
+  selRar='';selClass='';editId=null;
+  document.getElementById('savbtn').textContent="Sauvegarder l'item";
+  document.getElementById('canbtn').style.display='none';
+}
+
+function cancelEdit(){resetForm();}
+
+function editItem(id){
+  const item=items.find(i=>i.id===id);if(!item)return;
+  showTab('form');editId=id;
+  document.getElementById('f-name').value=item.name||'';
+  const catOpt=[...document.getElementById('f-cat').options].find(o=>o.value.startsWith(item.category+'|'));
+  if(catOpt)document.getElementById('f-cat').value=catOpt.value;
+  document.getElementById('f-palier').value=item.palier||'';
+  document.getElementById('f-level').value=item.level||'';
+  document.getElementById('f-desc').value=item.description||'';
+  selRar=item.rarity||'';
+  document.querySelectorAll('.rbtn').forEach(b=>b.classList.toggle('active',b.dataset.r===selRar));
+  onCatChange();
+  selClass=item.class||'';
+  document.querySelectorAll('.cbtn').forEach(b=>b.classList.toggle('active',b.dataset.c===selClass));
+  document.getElementById('stats-cont').innerHTML='';
+  (item.stats||[]).forEach(s=>addStat(s.name,s.value));
+  document.getElementById('set-cont').innerHTML='';
+  (item.sets||[]).forEach(s=>addSet(s.name,s.tiers));
+  renderSetSuggest();
+  document.getElementById('savbtn').textContent='Mettre à jour';
+  document.getElementById('canbtn').style.display='inline-block';
+  window.scrollTo(0,0);
+}
+
+document.getElementById('f-cat').addEventListener('focus',()=>renderSetSuggest());
+
+function deleteItem(id){
+  if(!confirm('Supprimer cet item ?'))return;
+  items=items.filter(i=>i.id!==id);save();
+  selItemId=null;renderWiki();toast('Item supprimé.');
+}
+
+function rCls(r){return'r-'+(r||'commun').replace(/\s+/g,'-');}
+
+function setView(v){
+  viewMode=v;
+  document.getElementById('vbtn-grid').classList.toggle('active',v==='grid');
+  document.getElementById('vbtn-table').classList.toggle('active',v==='table');
+  renderWiki();
+}
+
+function getFiltered(){
+  const q=(document.getElementById('search').value||'').toLowerCase();
+  const fcl=document.getElementById('flt-cl').value;
+  const fca=document.getElementById('flt-cat').value;
+  const fra=document.getElementById('flt-rar').value;
+  return items.filter(i=>{
+    const mq=!q||i.name.toLowerCase().includes(q)||(i.class||'').toLowerCase().includes(q)||(i.category||'').toLowerCase().includes(q);
+    const mc=!fcl||(i.class||'').toLowerCase()===fcl;
+    const mca=!fca||i.category===fca;
+    const mr=!fra||i.rarity===fra;
+    return mq&&mc&&mca&&mr;
+  });
+}
+
+function renderWiki(){
+  document.getElementById('wcnt').textContent=items.length;
+  const filtered=getFiltered();
+  const v=document.getElementById('items-view');
+  if(!filtered.length){v.innerHTML='<div class="empty">Aucun item. Commence par en ajouter via "Ajouter un item".</div>';document.getElementById('detail-panel').innerHTML='';return;}
+
+  if(viewMode==='grid'){
+    v.innerHTML='<div class="items-grid">'+filtered.map(item=>{
+      const stats=(item.stats||[]).slice(0,3).map(s=>`<span class="schip">${s.name} ${s.value>0?'+':''}${s.value}</span>`).join('');
+      const meta=[item.class,item.category+(item.palier?' P'+item.palier:''),item.level?'Niv.'+item.level:''].filter(Boolean).join(' · ');
+      return`<div class="icard${selItemId===item.id?' sel':''}" onclick="selItem(${item.id})">
+        <div class="ictop"><div class="icname">${item.name}</div><span class="rbadge ${rCls(item.rarity)}">${item.rarity||'—'}</span></div>
+        <div class="icmeta">${meta}</div>
+        <div>${stats}</div>
+      </div>`;
+    }).join('')+'</div>';
+  } else {
+    v.innerHTML=`<div style="overflow-x:auto"><table class="items-table">
+      <thead><tr><th>Nom</th><th>Catégorie</th><th>Classe</th><th>Palier</th><th>Rareté</th><th>Stats</th><th>Actions</th></tr></thead>
+      <tbody>${filtered.map(item=>`<tr class="${selItemId===item.id?'sel':''}" onclick="selItem(${item.id})">
+        <td class="tname">${item.name}</td>
+        <td>${item.category||'—'}</td>
+        <td>${item.class||'<span style="color:var(--color-text-tertiary);font-style:italic">tous</span>'}</td>
+        <td>${item.palier?'P'+item.palier:'—'}</td>
+        <td><span class="rbadge ${rCls(item.rarity)}">${item.rarity||'—'}</span></td>
+        <td>${(item.stats||[]).slice(0,2).map(s=>`${s.name} ${s.value>0?'+':''}${s.value}`).join(', ')}</td>
+        <td><div class="tact">
+          <button class="teditbtn" onclick="event.stopPropagation();editItem(${item.id})">Éditer</button>
+          <button class="tdelbtn" onclick="event.stopPropagation();deleteItem(${item.id})">Suppr.</button>
+        </div></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+  }
+
+  const sel=items.find(i=>i.id===selItemId);
+  document.getElementById('detail-panel').innerHTML=sel?renderDetail(sel):'';
+}
+
+function selItem(id){selItemId=selItemId===id?null:id;renderWiki();}
+
+function renderDetail(item){
+  const stats=(item.stats||[]).map(s=>`<div class="stattag">${s.name} <span class="sval">${s.value>0?'+':''}${s.value}</span></div>`).join('');
+  const meta=[item.class,item.category+(item.palier?' P'+item.palier:''),item.level?'Niveau min. '+item.level:''].filter(Boolean).join(' · ');
+  const sets=(item.sets||[]).map(s=>`<div class="setinfo">
+    <div class="setititle">${s.name}</div>
+    ${(s.tiers||[]).map(t=>`<div class="stierrow"><span class="scntbadge">${t.count} pièces</span><span>${t.bonus}</span></div>`).join('')}
+  </div>`).join('');
+  return`<div class="detail-panel">
+    <div class="dtop">
+      <div><div class="dname">${item.name}</div><div class="dmeta">${meta}</div></div>
+      <div class="dacts">
+        <span class="rbadge ${rCls(item.rarity)}">${item.rarity||'—'}</span>
+        <button class="deditbtn" onclick="editItem(${item.id})">Éditer</button>
+        <button class="ddelbtn" onclick="deleteItem(${item.id})">Supprimer</button>
+      </div>
+    </div>
+    ${item.description?`<div style="font-size:12px;color:var(--color-text-secondary);font-style:italic;margin-bottom:8px">${item.description}</div>`:''}
+    <div class="stattags">${stats}</div>
+    ${sets}
+  </div>`;
+}
+
+const TC_SLOTS={
+  'tc-casque':['Casque','Masque'],
+  'tc-plastron':['Plastron'],
+  'tc-jambieres':['Jambières'],
+  'tc-bottes':['Bottes'],
+  'tc-arme':['Épée','Hache','Faux','Dague','Bâton de shaman','Bâton de mage','Arc','Arbalète'],
+  'tc-offhand':['Bouclier','Catalyseur'],
+  'tc-gants':['Gants'],
+  'tc-art1':['Artefact'],
+  'tc-art2':['Artefact'],
+  'tc-art3':['Artefact'],
+  'tc-amulette':['Amulette'],
+  'tc-bracelet':['Bracelet'],
+  'tc-anneau1':['Anneau'],
+  'tc-anneau2':['Anneau']
+};
+
+function fillTC(){
+  Object.entries(TC_SLOTS).forEach(([slotId,cats])=>{
+    const sel=document.getElementById(slotId);if(!sel)return;
+    const cur=sel.value;
+    sel.innerHTML='<option value="">—</option>';
+    items.filter(i=>cats.includes(i.category)).forEach(i=>{
+      const o=document.createElement('option');o.value=i.id;o.textContent=i.name;sel.appendChild(o);
+    });
+    if(cur)sel.value=cur;
+  });
+  calcTC();
+}
+
+function calcTC(){
+  const artSels=['tc-art1','tc-art2','tc-art3'];
+  const artVals=artSels.map(id=>{const s=document.getElementById(id);return s?parseInt(s.value)||0:0;}).filter(Boolean);
+  const dupArt=artVals.length!==new Set(artVals).size;
+
+  const totals={};const setCnt={};const setDefs={};
+  Object.keys(TC_SLOTS).forEach(slotId=>{
+    const sel=document.getElementById(slotId);if(!sel)return;
+    const id=parseInt(sel.value);if(!id)return;
+    const item=items.find(i=>i.id===id);if(!item)return;
+    (item.stats||[]).forEach(s=>{totals[s.name]=(totals[s.name]||0)+s.value;});
+    (item.sets||[]).forEach(s=>{setCnt[s.name]=(setCnt[s.name]||0)+1;setDefs[s.name]=s;});
+  });
+
+  let statsHtml='';
+  if(dupArt)statsHtml+='<div style="color:#A32D2D;font-size:12px;margin-bottom:8px;padding:6px 10px;background:#FCEBEB;border-radius:var(--border-radius-md)">Attention : vous ne pouvez pas équiper le même artefact deux fois.</div>';
+  if(!Object.keys(totals).length)statsHtml+='<div class="empty" style="padding:16px;font-size:12px">Sélectionne des items.</div>';
+  else statsHtml+=Object.entries(totals).map(([k,v])=>`<div class="tc-sr"><span>${k}</span><span class="tc-sv">${v>0?'+':''}${Math.round(v*100)/100}</span></div>`).join('');
+  document.getElementById('tc-stats').innerHTML=statsHtml;
+
+  let setsHtml='';
+  Object.entries(setCnt).forEach(([name,cnt])=>{
+    const def=setDefs[name];if(!def)return;
+    const active=(def.tiers||[]).filter(t=>cnt>=t.count);
+    if(active.length)setsHtml+=`<div class="setact"><div class="setact-name">${name} — ${cnt} pièces</div>${active.map(t=>`<div class="setact-b">${t.bonus}</div>`).join('')}</div>`;
+  });
+  document.getElementById('tc-sets').innerHTML=setsHtml;
+}
+
+document.getElementById('wcnt').textContent=items.length;
+
+function exportJSON(){
+  const b=new Blob([JSON.stringify(items,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='mc_items.json';a.click();
+  toast('JSON exporté !');
+}
+function importJSON(){
+  const i=document.createElement('input');i.type='file';i.accept='.json';
+  i.onchange=e=>{
+    const f=e.target.files[0];if(!f)return;
+    const r=new FileReader();
+    r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(Array.isArray(d)){items=d;save();document.getElementById('wcnt').textContent=items.length;toast(d.length+' items importés !');}}catch(e){toast('Fichier invalide.');}};
+    r.readAsText(f);
+  };i.click();
+}
+</script>
